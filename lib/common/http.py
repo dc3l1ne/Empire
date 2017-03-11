@@ -11,6 +11,7 @@ These are the first places URI requests are processed.
 """
 
 from BaseHTTPServer import BaseHTTPRequestHandler
+from SocketServer import ThreadingMixIn
 import BaseHTTPServer, threading, ssl, os, string, random
 from pydispatch import dispatcher
 import re
@@ -142,7 +143,8 @@ class RequestHandler(BaseHTTPRequestHandler):
     # supress all the stupid default stdout/stderr output
     def log_message(*arg):
         pass
-
+class ThreadedHTTPServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
+    pass
  
 class EmpireServer(threading.Thread):
     """
@@ -161,7 +163,7 @@ class EmpireServer(threading.Thread):
             threading.Thread.__init__(self)
             self.server = None
 
-            self.server = BaseHTTPServer.HTTPServer((lhost, int(port)), RequestHandler)
+            self.server = ThreadedHTTPServer((lhost, int(port)), RequestHandler)
             
             # pass the agent handler object along for the RequestHandler
             self.server.agents = handler
